@@ -411,13 +411,51 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("welcome-message").classList.remove("hidden");
       showHoverCircles(); // Show hover circles in the initial state
       changeBackgroundWithSlide(initialBackground);
+      showMoodSelectorBox(); // Show mood selector on home
     }
   });
+
+  // --- MOOD SELECTOR BOX SETUP ---
+  function showMoodSelectorBox() {
+    if (document.getElementById("mood-selector-box")) return;
+    const box = document.createElement("div");
+    box.id = "mood-selector-box";
+    box.innerHTML = `
+      <div class="mood-selector-content">
+        <span class="mood-label">Mood:</span>
+        <button class="mood-btn" title="Happy" data-mood="happy">😊</button>
+        <button class="mood-btn" title="Stressed" data-mood="stressed">😣</button>
+        <button class="mood-btn" title="Neutral" data-mood="neutral">😐</button>
+      </div>
+    `;
+    document.body.appendChild(box);
+    box.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const mood = btn.getAttribute('data-mood');
+        // Optionally, save mood to storage or use it elsewhere
+        localStorage.setItem('selectedMood', mood);
+        // Optionally, give feedback
+        box.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+    // Restore previous mood selection if exists
+    const prevMood = localStorage.getItem('selectedMood');
+    if (prevMood) {
+      const prevBtn = box.querySelector(`.mood-btn[data-mood="${prevMood}"]`);
+      if (prevBtn) prevBtn.classList.add('selected');
+    }
+  }
+  function hideMoodSelectorBox() {
+    const box = document.getElementById("mood-selector-box");
+    if (box) box.remove();
+  }
 
   categoriesContainer.addEventListener("click", (event) => {
     if (event.target.classList.contains("category-button")) {
       const category = event.target.dataset.category;
       hideHoverCircles();
+      hideMoodSelectorBox(); // Hide mood selector when category is selected
 
       if (category === "others") {
         // Create five empty tasks for the "Others" category
@@ -566,6 +604,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Hide the reset modal
     resetModal.classList.add("hidden");
+    // Show mood selector again after reset
+    showMoodSelectorBox();
   });
 
   function updateBackgroundState(tasks, selectedCategory) {
