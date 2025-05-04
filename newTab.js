@@ -659,6 +659,116 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Speech Bubble Encouragement Feature ---
+  const encouragementMessages = [
+    "Great job!",
+    "You’re making progress!",
+    "Keep going!",
+    "Amazing work!",
+    "So proud of you!",
+    "You did it!",
+    "Way to go!",
+    "Keep up the good work!",
+    "You’re unstoppable!",
+    "Every step counts!"
+  ];
+
+  function showSpeechBubble(category) {
+    // Remove any existing bubble
+    const existing = document.getElementById('speech-bubble');
+    if (existing) existing.remove();
+
+    // Create bubble container
+    const bubble = document.createElement('div');
+    bubble.id = 'speech-bubble';
+    bubble.className = 'speech-bubble';
+    bubble.style.position = 'absolute';
+    bubble.style.zIndex = 1100;
+    bubble.style.pointerEvents = 'none';
+    bubble.style.opacity = 0;
+    bubble.style.transition = 'opacity 0.5s';
+    let top, left;
+    switch (category) {
+      case 'daily': // self-care
+        top = window.innerHeight * 0.3;
+        left = window.innerWidth * 0.6;
+        break;
+      case 'friends': // loved ones
+        top = window.innerHeight * 0.5;
+        left = window.innerWidth * 0.8;
+        break;
+      case 'pet':
+        top = window.innerHeight * 0.43;
+        left = window.innerWidth * 0.72;
+        break;
+      case 'home':
+        top = window.innerHeight * 0.45;
+        left = window.innerWidth * 0.73;
+        break;
+      case 'mind':
+        top = window.innerHeight * 0.43;
+        left = window.innerWidth * 0.75;
+        break;
+      case 'others':
+        top = window.innerHeight * 0.07;
+        left = window.innerWidth * 0.78;
+        break;
+      default:
+        top = window.innerHeight / 3;
+        left = window.innerWidth * 3 / 4;
+    }
+    bubble.style.top = `${top}px`;
+    bubble.style.left = `${left}px`;
+
+    // Bubble image
+    const img = document.createElement('img');
+    img.src = 'assets/thought_bubble.png';
+    img.alt = 'encouragement bubble';
+    img.className = 'bubble-img';
+    img.style.width = '200px';
+    img.style.height = 'auto';
+    img.style.display = 'block';
+    img.style.margin = '0 auto';
+    img.style.pointerEvents = 'none';
+    // Flip the bubble horizontally for 'daily' only
+    if (category === 'daily') {
+      img.style.transform = 'scaleX(-1)';
+    }
+
+    // Message
+    const msg = document.createElement('div');
+    msg.className = 'bubble-message';
+    msg.textContent = encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
+    msg.style.position = 'absolute';
+    msg.style.top = '90px';
+    msg.style.left = '50%';
+    msg.style.transform = 'translateX(-45%)'; // Adjust leftwards a bit
+    msg.style.width = '80%';
+    msg.style.textAlign = 'center';
+    msg.style.fontFamily = "'Slackside One', cursive";
+    msg.style.fontSize = '1.1rem';
+    msg.style.color = '#333';
+    msg.style.fontWeight = 'bold';
+    msg.style.pointerEvents = 'none';
+    msg.style.textShadow = '0 2px 8px rgba(255,255,255,0.6)';
+    msg.style.padding = '0 12px';
+
+    bubble.appendChild(img);
+    bubble.appendChild(msg);
+    document.body.appendChild(bubble);
+
+    // Fade in
+    setTimeout(() => {
+      bubble.style.opacity = 1;
+    }, 20);
+    // Fade out and remove
+    setTimeout(() => {
+      bubble.style.opacity = 0;
+      setTimeout(() => bubble.remove(), 600);
+    }, 2000);
+  }
+  // --- End Speech Bubble Feature ---
+
   function renderTasks(tasks, backgroundIndex, category) {
     const tasksHeader =
       document.getElementById("tasks-header") || document.createElement("div");
@@ -709,6 +819,11 @@ document.addEventListener("DOMContentLoaded", () => {
       checkbox.addEventListener("change", () => {
         const originalIndex = tasks.indexOf(task);
         tasks[originalIndex].completed = checkbox.checked;
+
+        // Show speech bubble only when checking OFF (not unchecking)
+        if (checkbox.checked) {
+          showSpeechBubble(category);
+        }
 
         if (tasks[originalIndex].completed) {
           const deleteButton = taskItem.querySelector(".delete-task");
@@ -824,9 +939,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ).then(() => {
                 tasksContainer.classList.add("hidden");
                 categoriesContainer.classList.add("hidden");
-                document
-                  .getElementById("welcome-message")
-                  .classList.add("hidden");
+                document.getElementById("welcome-message").classList.add("hidden");
                 // Create and show thank you message
                 const thankYouMessage = document.createElement("div");
                 thankYouMessage.className = "thank-you-message";
@@ -885,9 +998,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ).then(() => {
               tasksContainer.classList.add("hidden");
               categoriesContainer.classList.add("hidden");
-              document
-                .getElementById("welcome-message")
-                .classList.add("hidden");
+              document.getElementById("welcome-message").classList.add("hidden");
               // Create and show thank you message
               const thankYouMessage = document.createElement("div");
               thankYouMessage.className = "thank-you-message";
